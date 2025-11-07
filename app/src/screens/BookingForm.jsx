@@ -15,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../utils/utilities';
 
 export default function BookingFormScreen({ route, navigation }) {
   const { service } = route.params;
@@ -104,10 +105,11 @@ const handleBooking = async () => {
       phone,
       notes,
     };
-
+    // 'http://192.168.1.34:5000/api/bookings',
+    
     // ✅ 3️⃣ Make API call with Authorization header
     const response = await axios.post(
-      'http://192.168.1.34:5000/api/bookings',
+      `${BASE_URL}/bookings`,
       bookingData,
       {
         headers: {

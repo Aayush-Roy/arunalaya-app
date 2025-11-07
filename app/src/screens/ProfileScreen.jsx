@@ -12,6 +12,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
+import { BASE_URL } from '../utils/utilities';
 
 export default function ProfileScreen({ navigation }) {
   const [user, setUser] = useState(null);
@@ -28,7 +29,7 @@ export default function ProfileScreen({ navigation }) {
           return;
         }
 
-        const response = await axios.get('http://192.168.1.34:5000/api/auth/me', {
+        const response = await axios.get(`${BASE_URL}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

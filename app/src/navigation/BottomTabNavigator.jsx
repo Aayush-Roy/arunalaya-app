@@ -98,11 +98,11 @@ export default function BottomTabNavigator() {
           },
         })}
       >
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Offers" component={OffersScreen} />
-        <Tab.Screen name="Bookings" component={BookingsScreen} />
+        <Tab.Screen name="Home" component={HomeScreen} options={{headerShown:false}} />
+        <Tab.Screen name="Offers" component={OffersScreen} options={{headerShown:false}}/>
+        <Tab.Screen name="Bookings" component={BookingsScreen} options={{headerShown:false}}/>
         {isLoggedIn ? (
-          <Tab.Screen name="Profile" component={ProfileScreen} />
+          <Tab.Screen name="Profile" component={ProfileScreen} options={{headerShown:false}}/>
         ) : (
           <Tab.Screen name="Signup">
             {(props) => <SignupScreen {...props} setIsLoggedIn={setIsLoggedIn} />}

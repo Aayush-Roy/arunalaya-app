@@ -8,20 +8,58 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { BASE_URL } from "../utils/utilities";
+
 
 export default function BookingsScreen() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+// http://localhost:5000/api/bookings/690453679dddb7a4ceee43c3/cancel
+//   const handleCancel=async(id)=>{
+//     try{
+//       const token = await AsyncStorage.getItem('token');
+//       // const response = await axios.put(`${BASE_URL}/bookings/${id}/cancel`,{
+//       //   headers:{Authorization:`Bearer ${token}`}
+//       // });
+//       const response = await axios.put(
+//   `${BASE_URL}/bookings/${id}/cancel`,
+//   {}, // empty body
+//   {
+//     headers: { Authorization: `Bearer ${token}` },
+//   }
+// );
 
-  const handleCancel=async()=>{
-    console.log("cancelled");
+//       Alert.alert("Booking Cancelled!!");
+//       console.log(response);
+//     }catch(err){
+//       console.log("error", err);
+//     }
+//   }
+
+const handleCancel = async (id) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const response = await axios.put(
+      `${BASE_URL}/bookings/${id}/cancel`,
+      {}, // no data to send
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    Alert.alert("Booking Cancelled!!");
+    console.log("Cancel Response:", response.data);
+    // Optional: refresh list
+    fetchBookings();
+  } catch (err) {
+    console.log("Error cancelling booking:", err.response?.data || err.message);
   }
-
+};
 
   const fetchBookings = async () => {
     try {
@@ -31,8 +69,8 @@ export default function BookingsScreen() {
         setLoading(false);
         return;
       }
-
-      const response = await axios.get("http://192.168.1.34:5000/api/bookings/me", {
+// http://192.168.1.34:5000/api/bookings/me
+      const response = await axios.get(`${BASE_URL}/bookings/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -155,7 +193,7 @@ export default function BookingsScreen() {
                 {/* Action Buttons */}
                 <View style={styles.buttonRow}>
                   {booking.status === "Pending" && (
-                    <TouchableOpacity onPress={()=>handleCancel()} style={styles.cancelBtn}>
+                    <TouchableOpacity onPress={()=>handleCancel(booking._id)} style={styles.cancelBtn}>
                       <Ionicons name="close-circle-outline" size={18} color="#F44336" />
                       <Text style={[styles.viewBtnText, { color: "#F44336" }]}>
                         Cancel
