@@ -8,24 +8,37 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
+import axios from 'axios';
+import { BASE_URL } from '../utils/utilities';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function LoginScreen({ navigation, setIsLoggedIn }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
-  const handleLogin = () => {
-    // Basic validation
+  
+    const handleLogin = async () => {
     if (!email || !password) {
       alert('Please fill all fields');
       return;
     }
-    // In real app, call API here
-    setIsLoggedIn(true);
-  };
+    try {
+      const response = await axios.post(`${BASE_URL}/auth/login`, { email, password });
+      if (response.data.token) {
+        await AsyncStorage.setItem('token', response.data.token);
+        setIsLoggedIn(true);
+        Alert.alert('Success', 'Logged in successfully!');
+        // navigation.navigate('Home');
+        navigation.replace('Main');
 
+      }
+    } catch (err) {
+      console.error('Login error:', err.response?.data || err.message);
+      alert('Login failed: ' + (err.response?.data?.message || 'Something went wrong'));
+    }
+  };
   return (
     <KeyboardAvoidingView
       style={styles.container}

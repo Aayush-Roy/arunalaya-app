@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -12,10 +12,41 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-export default function ServiceDetailsScreen({ route, navigation }) {
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+//before this component also using navigation in prop
+export default function ServiceDetailsScreen({ route,navigation }) {
+  // const navigation = useNavigation();
   const { service } = route.params;
+  const[isLoggedIn,setIsLoggedIn] = useState(false);
   console.log("service=>", service);
+  
+const checkLoginUser = async () => {
+  const token = await AsyncStorage.getItem('token');
+
+  if (!token) {
+    Alert.alert(
+      "Account Required",
+      "Please sign up or log in to book your session.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Sign Up",
+          // onPress: () => navigation.navigate("Signup"), // 👈 navigate to signup
+           onPress: () => navigation.navigate("Signup"), 
+        },
+      ]
+    );
+    return false;
+  }
+
+  setIsLoggedIn(true);
+  return true;
+};
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#141413' }}>
@@ -95,14 +126,25 @@ export default function ServiceDetailsScreen({ route, navigation }) {
           <Text style={styles.priceLabel}>Total Price</Text>
           <Text style={styles.price}>₹{service.price}</Text>
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.bookButton}
           activeOpacity={0.8}
           onPress={() => navigation.navigate('BookingForm', { service })}
         >
           <Text style={styles.bookButtonText}>Book Now</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        <TouchableOpacity
+  style={styles.bookButton}
+  activeOpacity={0.8}
+  onPress={async () => {
+    const loggedIn = await checkLoginUser();
+    if (loggedIn) navigation.navigate('BookingForm', { service });
+  }}
+>
+  <Text style={styles.bookButtonText}>Book Now</Text>
+  <Ionicons name="arrow-forward" size={20} color="#fff" />
+</TouchableOpacity>
       </LinearGradient>
     </View>
 </SafeAreaView>

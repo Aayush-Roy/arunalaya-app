@@ -20,6 +20,7 @@ import { BASE_URL } from "../utils/utilities";
 export default function BookingsScreen() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const[isLoggedIn,setIsLoggedIn] = useState(false);
 // http://localhost:5000/api/bookings/690453679dddb7a4ceee43c3/cancel
 //   const handleCancel=async(id)=>{
 //     try{
@@ -60,6 +61,9 @@ const handleCancel = async (id) => {
     console.log("Error cancelling booking:", err.response?.data || err.message);
   }
 };
+
+
+
 
   const fetchBookings = async () => {
     try {

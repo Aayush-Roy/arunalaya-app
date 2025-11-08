@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,11 +6,26 @@ import {
   TouchableOpacity,
   Image,
   Animated,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function ServiceCard({ service, onPress }) {
+  const[isLoggedIn,setIsLoggedIn] = useState(false);
+
+//   const checkLoginUser = async () => {
+//   const token = await AsyncStorage.getItem('token');
+//   if (!token) {
+//     Alert.alert("Please Create Your Account Before");
+//     setIsLoggedIn(false);
+//     return false; // exit here
+//   } else {
+//     setIsLoggedIn(true);
+//     return true;
+//   }
+// };
+
   const scaleValue = new Animated.Value(1);
 
   const handlePressIn = () => {

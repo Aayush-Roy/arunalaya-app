@@ -13,51 +13,118 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 import { BASE_URL } from '../utils/utilities';
+import { useNavigation } from '@react-navigation/native';
 
-export default function ProfileScreen({ navigation }) {
+
+//changes befote this component accepts a navigation props
+export default function ProfileScreen({setIsLoggedIn}) {
+  console.log("isLoggedIn in Profile=>", setIsLoggedIn);
+  
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const navigation = useNavigation();
   // ✅ Fetch Current User
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        if (!token) {
-          Alert.alert('Please login first');
-          navigation.navigate('Login');
-          return;
-        }
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     try {
+  //       const token = await AsyncStorage.getItem('token');
+  //       if (!token) {
+  //         Alert.alert('Please login first');
+  //         navigation.navigate('Login');
+  //         return;
+  //       }
 
-        const response = await axios.get(`${BASE_URL}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  //       const response = await axios.get(`${BASE_URL}/auth/me`, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
 
-        setUser(response.data.user);
-      } catch (err) {
-        console.error('Error fetching user:', err);
-        Alert.alert('Error', 'Unable to load profile');
-      } finally {
-        setLoading(false);
+  //       setUser(response.data.user);
+  //     } catch (err) {
+  //       console.error('Error fetching user:', err);
+  //       Alert.alert('Error', 'Unable to load profile');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchUser();
+  // }, []);
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert(
+          'Login Required',
+          'Please login to access your profile.',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.replace('Login'), // 👈 replace instead of navigate
+            },
+          ]
+        );
+        return;
       }
-    };
 
-    fetchUser();
-  }, []);
+      const response = await axios.get(`${BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-  // ✅ Handle Logout
-  const handleLogout = async () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Logout',
-        onPress: async () => {
-          await AsyncStorage.removeItem('token');
-          navigation.replace('Login');
-        },
-      },
-    ]);
+      setUser(response.data.user);
+    } catch (err) {
+      console.error('Error fetching user:', err);
+      Alert.alert('Error', 'Unable to load profile');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  fetchUser();
+}, [navigation]);
+
+
+
+
+//   const handleLogout = async () => {
+//   Alert.alert('Logout', 'Are you sure you want to logout?', [
+//     { text: 'Cancel', style: 'cancel' },
+//     {
+//       text: 'Logout',
+      
+//       onPress: async () => {
+//         try {
+//           await AsyncStorage.removeItem('token');
+//             setIsLoggedIn(false);
+//            navigation.replace('Login'); 
+//         } catch (err) {
+//           console.error('Error during logout:', err);
+//           Alert.alert('Error', 'Failed to logout');
+//         }
+//       },
+//     },
+//   ]);
+// };
+
+const handleLogout = async () => {
+  Alert.alert('Logout', 'Are you sure you want to logout?', [
+    { text: 'Cancel', style: 'cancel' },
+    {
+      text: 'Logout',
+      onPress: async () => {
+        try {
+          await AsyncStorage.removeItem('token');
+          setIsLoggedIn(false); // ✅ This alone is enough!
+          // ❌ remove navigation.replace('Login')
+        } catch (err) {
+          console.error('Error during logout:', err);
+          Alert.alert('Error', 'Failed to logout');
+        }
+      },
+    },
+  ]);
+};
+
 
   const MenuItem = ({ icon, title, onPress, showArrow = true, danger = false }) => (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -112,7 +179,7 @@ export default function ProfileScreen({ navigation }) {
         {/* Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{user.bookings.length || 12}</Text>
+            <Text style={styles.statNumber}>{user.bookings.length || 0}</Text>
             <Text style={styles.statLabel}>Bookings</Text>
           </View>
           <View style={styles.statDivider} />

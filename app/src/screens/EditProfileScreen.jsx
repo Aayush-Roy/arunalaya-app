@@ -1,118 +1,246 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+// import {
+//   View,
+//   Text,
+//   TextInput,
+//   TouchableOpacity,
+//   StyleSheet,
+//   ScrollView,
+// } from 'react-native';
+// import { Ionicons } from '@expo/vector-icons';
+// import { LinearGradient } from 'expo-linear-gradient';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+
+// export default function EditProfileScreen({ navigation }) {
+//   const [form, setForm] = useState({
+//     name: 'John Doe',
+//     email: 'john.doe@example.com',
+//     phone: '+91 98765 43210',
+//     gender: 'Male',
+//   });
+
+//   const handleChange = (key, value) => {
+//     setForm({ ...form, [key]: value });
+//   };
+
+//   const handleSave = () => {
+//     console.log('Updated Profile:', form);
+//     // navigation.goBack(); // uncomment when navigation is added
+//   };
+
+//   return (
+//     <SafeAreaView style={{ flex: 1, backgroundColor: '#141413' }}>
+//     <View style={styles.container}>
+//       <ScrollView showsVerticalScrollIndicator={false}>
+//         {/* Header */}
+//         <View style={styles.header}>
+//           {/* <TouchableOpacity onPress={() => navigation?.goBack()}>
+//             <Ionicons name="chevron-back" size={26} color="#fff" />
+//           </TouchableOpacity> */}
+//           {/* <Text style={styles.headerTitle}>Edit Profile</Text> */}
+//           <View style={{ width: 26 }} /> {/* Spacer for alignment */}
+//         </View>
+
+//         {/* Avatar */}
+//         <View style={styles.avatarContainer}>
+//           <View style={styles.avatarCircle}>
+//             <Text style={styles.avatarText}>
+//               {form.name.split(' ').map(n => n[0]).join('')}
+//             </Text>
+//           </View>
+//           <TouchableOpacity>
+//             <Text style={styles.changePhotoText}>Change Photo</Text>
+//           </TouchableOpacity>
+//         </View>
+
+//         {/* Form */}
+//         <View style={styles.form}>
+//           <Text style={styles.label}>Full Name</Text>
+//           <TextInput
+//             style={styles.input}
+//             value={form.name}
+//             onChangeText={(v) => handleChange('name', v)}
+//             placeholder="Enter your name"
+//             placeholderTextColor="#777"
+//           />
+
+//           <Text style={styles.label}>Email</Text>
+//           <TextInput
+//             style={styles.input}
+//             value={form.email}
+//             onChangeText={(v) => handleChange('email', v)}
+//             keyboardType="email-address"
+//             placeholder="Enter your email"
+//             placeholderTextColor="#777"
+//           />
+
+//           <Text style={styles.label}>Phone Number</Text>
+//           <TextInput
+//             style={styles.input}
+//             value={form.phone}
+//             onChangeText={(v) => handleChange('phone', v)}
+//             keyboardType="phone-pad"
+//             placeholder="Enter your phone"
+//             placeholderTextColor="#777"
+//           />
+
+//           <Text style={styles.label}>Gender</Text>
+//           <TextInput
+//             style={styles.input}
+//             value={form.gender}
+//             onChangeText={(v) => handleChange('gender', v)}
+//             placeholder="Male / Female"
+//             placeholderTextColor="#777"
+//           />
+//         </View>
+
+//         {/* Save Button */}
+//         <TouchableOpacity onPress={handleSave} style={styles.saveButtonWrapper}>
+//           <LinearGradient
+//             colors={['#F88310', '#F5B041']}
+//             start={{ x: 0, y: 0 }}
+//             end={{ x: 1, y: 0 }}
+//             style={styles.saveButton}
+//           >
+//             <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
+//             <Text style={styles.saveButtonText}>Save Changes</Text>
+//           </LinearGradient>
+//         </TouchableOpacity>
+
+//         <View style={{ height: 40 }} />
+//       </ScrollView>
+//     </View>
+//     </SafeAreaView>
+//   );
+// }
+
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
+  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {BASE_URL} from "../utils/utilities";
+import axios from 'axios';
 
 export default function EditProfileScreen({ navigation }) {
   const [form, setForm] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+91 98765 43210',
-    gender: 'Male',
+    name: '',
+    email: '',
+    phone: '',
+    gender: '',
   });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const res = await axios.get(`${BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("===>", res.data);
+        setForm(res.data.user);
+      } catch (err) {
+        console.log('Error fetching user:', err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleChange = (key, value) => {
     setForm({ ...form, [key]: value });
   };
 
-  const handleSave = () => {
-    console.log('Updated Profile:', form);
-    // navigation.goBack(); // uncomment when navigation is added
+  const handleSave = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      await axios.put(`${BASE_URL}/auth/update`, form, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert('Profile Updated!');
+      navigation.goBack();
+    } catch (err) {
+      console.log('Error updating profile:', err.message);
+    }
   };
+
+  if (loading) return <Text style={{ color: '#fff', textAlign: 'center', marginTop: 50 }}>Loading...</Text>;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#141413' }}>
-    <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          {/* <TouchableOpacity onPress={() => navigation?.goBack()}>
-            <Ionicons name="chevron-back" size={26} color="#fff" />
-          </TouchableOpacity> */}
-          {/* <Text style={styles.headerTitle}>Edit Profile</Text> */}
-          <View style={{ width: 26 }} /> {/* Spacer for alignment */}
-        </View>
-
-        {/* Avatar */}
-        <View style={styles.avatarContainer}>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>
-              {form.name.split(' ').map(n => n[0]).join('')}
-            </Text>
+      <View style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Avatar */}
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarText}>
+                {form.name?.split(' ').map(n => n[0]).join('')}
+              </Text>
+            </View>
+            <TouchableOpacity>
+              <Text style={styles.changePhotoText}>Change Photo</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity>
-            <Text style={styles.changePhotoText}>Change Photo</Text>
+
+          {/* Form */}
+          <View style={styles.form}>
+            <Text style={styles.label}>Full Name</Text>
+            <TextInput
+              style={styles.input}
+              value={form.name}
+              onChangeText={(v) => handleChange('name', v)}
+            />
+
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              value={form.email}
+              onChangeText={(v) => handleChange('email', v)}
+              keyboardType="email-address"
+            />
+
+            <Text style={styles.label}>Phone Number</Text>
+            <TextInput
+              style={styles.input}
+              value={form.phone}
+              onChangeText={(v) => handleChange('phone', v)}
+              keyboardType="phone-pad"
+            />
+
+            <Text style={styles.label}>Gender</Text>
+            <TextInput
+              style={styles.input}
+              value={form.gender}
+              onChangeText={(v) => handleChange('gender', v)}
+            />
+          </View>
+
+          {/* Save Button */}
+          <TouchableOpacity onPress={handleSave} style={styles.saveButtonWrapper}>
+            <LinearGradient
+              colors={['#F88310', '#F5B041']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.saveButton}
+            >
+              <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+            </LinearGradient>
           </TouchableOpacity>
-        </View>
 
-        {/* Form */}
-        <View style={styles.form}>
-          <Text style={styles.label}>Full Name</Text>
-          <TextInput
-            style={styles.input}
-            value={form.name}
-            onChangeText={(v) => handleChange('name', v)}
-            placeholder="Enter your name"
-            placeholderTextColor="#777"
-          />
-
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            value={form.email}
-            onChangeText={(v) => handleChange('email', v)}
-            keyboardType="email-address"
-            placeholder="Enter your email"
-            placeholderTextColor="#777"
-          />
-
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput
-            style={styles.input}
-            value={form.phone}
-            onChangeText={(v) => handleChange('phone', v)}
-            keyboardType="phone-pad"
-            placeholder="Enter your phone"
-            placeholderTextColor="#777"
-          />
-
-          <Text style={styles.label}>Gender</Text>
-          <TextInput
-            style={styles.input}
-            value={form.gender}
-            onChangeText={(v) => handleChange('gender', v)}
-            placeholder="Male / Female"
-            placeholderTextColor="#777"
-          />
-        </View>
-
-        {/* Save Button */}
-        <TouchableOpacity onPress={handleSave} style={styles.saveButtonWrapper}>
-          <LinearGradient
-            colors={['#F88310', '#F5B041']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.saveButton}
-          >
-            <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
-            <Text style={styles.saveButtonText}>Save Changes</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <View style={{ height: 40 }} />
-      </ScrollView>
-    </View>
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {
