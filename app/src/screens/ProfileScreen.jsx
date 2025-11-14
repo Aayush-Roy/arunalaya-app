@@ -203,7 +203,13 @@ const handleLogout = async () => {
             <MenuItem icon="person-outline" title="Personal Information" />
             <MenuItem icon="location-outline" title="Saved Addresses" />
             <MenuItem icon="card-outline" title="Payment Methods" />
-            <MenuItem icon="document-text-outline" title="Medical History" />
+            {/* <MenuItem icon="document-text-outline" title="Medical History" /> */}
+            <MenuItem
+  icon="document-text-outline"
+  title="Medical History"
+  onPress={() => navigation.navigate('MedicalHistory')}
+/>
+
           </View>
         </View>
 

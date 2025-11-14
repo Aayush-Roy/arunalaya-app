@@ -196,14 +196,33 @@ const handleCancel = async (id) => {
 
                 {/* Action Buttons */}
                 <View style={styles.buttonRow}>
-                  {booking.status === "Pending" && (
+                  {/* {booking.status === "Pending" && (
                     <TouchableOpacity onPress={()=>handleCancel(booking._id)} style={styles.cancelBtn}>
                       <Ionicons name="close-circle-outline" size={18} color="#F44336" />
                       <Text style={[styles.viewBtnText, { color: "#F44336" }]}>
                         Cancel
                       </Text>
                     </TouchableOpacity>
-                  )}
+                  )} */}
+                  {booking.status === "Pending" && (
+  <TouchableOpacity
+    onPress={() =>
+      Alert.alert(
+        "Cancel Booking",
+        "Are you sure you want to cancel this booking?",
+        [
+          { text: "No", style: "cancel" },
+          { text: "Yes, Cancel", style: "destructive", onPress: () => handleCancel(booking._id) },
+        ]
+      )
+    }
+    style={styles.cancelBtn}
+  >
+    <Ionicons name="close-circle-outline" size={18} color="#F44336" />
+    <Text style={[styles.viewBtnText, { color: "#F44336" }]}>Cancel</Text>
+  </TouchableOpacity>
+)}
+
                   <TouchableOpacity style={styles.viewBtn}>
                     <Text style={styles.viewBtnText}>View Details</Text>
                   </TouchableOpacity>

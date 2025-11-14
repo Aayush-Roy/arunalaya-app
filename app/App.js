@@ -92,6 +92,7 @@ import ServiceDetailsScreen from './src/screens/ServiceDetails';
 import BookingFormScreen from './src/screens/BookingForm';
 import LoginScreen from './src/screens/LoginScreen';
 import BookingsScreen from './src/screens/BookingScreen';
+import MedicalHistoryScreen from './src/screens/MedicalHistoryScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -166,6 +167,11 @@ export default function App() {
               <Stack.Screen name="BookingForm" component={BookingFormScreen} />
               <Stack.Screen name="EditProfile" component={EditProfileScreen} />
               <Stack.Screen name="Bookings" component={BookingsScreen} />
+              <Stack.Screen
+  name="MedicalHistory"
+  component={MedicalHistoryScreen}
+  options={{ title: 'Medical History', headerShown: true }}
+/>
             </>
           )}
         </Stack.Navigator>
